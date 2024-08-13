@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: user-center
+  # 数据库相关配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://xxxxxxxxxxx:xxx/user_center
+    username: xxxx
+    password: xxxxxx
+server:
+  port: 9000
