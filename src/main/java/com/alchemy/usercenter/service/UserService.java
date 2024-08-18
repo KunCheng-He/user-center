@@ -3,6 +3,8 @@ package com.alchemy.usercenter.service;
 import com.alchemy.usercenter.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
 * @author KunCheng He
 * @description 针对表【user】的数据库操作Service
@@ -15,7 +17,16 @@ public interface UserService extends IService<User> {
      * @param telPhone 电话号码
      * @param userPassword 用户密码
      * @param checkPassword 用户确认密码
-     * @return 注册是否成功
+     * @return 用户的 ID
      */
     Long userRegister(String telPhone, String userPassword, String checkPassword);
+
+    /**
+     * 用户登录
+     * @param telPhone 电话号码
+     * @param userPassword 用户密码
+     * @param request 请求
+     * @return 用户信息
+     */
+    User userLogin(String telPhone, String userPassword, HttpServletRequest request);
 }

@@ -8,7 +8,10 @@ import com.alchemy.usercenter.model.User;
 import com.alchemy.usercenter.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author KunCheng He
@@ -16,7 +19,13 @@ import org.springframework.stereotype.Service;
 * @createDate 2024-08-18 15:24:00
 */
 @Service
+@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    /**
+     * 盐值
+     */
+    private final static String SALT = "usercenter";
 
     @Override
     public Long userRegister(String telPhone, String userPassword, String checkPassword) {
@@ -46,12 +55,51 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 普通校验通过，对密码进行 MD5 摘要加密（不可解密）
-        String password = DigestUtil.md5Hex(userPassword);
+        String password = DigestUtil.md5Hex(SALT + userPassword);
 
         // 注册用户(注册失败返回 -6，可能是因为该用户以注册)
         User user = new User();
         user.setTelPhone(telPhone);
         user.setPassword(password);
         return this.save(user) ? user.getId() : -7;
+    }
+
+    @Override
+    public User userLogin(String telPhone, String userPassword, HttpServletRequest request) {
+        // 基本校验
+        if (StrUtil.hasBlank(telPhone, userPassword))
+            return null;
+        else if (!Validator.isMobile(telPhone))
+            return null;
+        else if (!userPassword.matches("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$"))
+            return null;
+
+        //  查询用户
+        String password = DigestUtil.md5Hex(SALT + userPassword);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("tel_phone", telPhone);
+        queryWrapper.eq("password", password);
+        User user = this.getOne(queryWrapper);
+
+        // 判断用户是否存在
+        if (user == null) {
+            log.info("用户不存在");
+            return null;
+        }
+
+        // 脱敏
+        User safeUser = new User();
+        safeUser.setId(user.getId());
+        safeUser.setName(user.getName());
+        safeUser.setTelPhone(user.getTelPhone());
+        safeUser.setEmail(user.getEmail());
+        safeUser.setAvatar(user.getAvatar());
+        safeUser.setGender(user.getGender());
+        safeUser.setStatus(user.getStatus());
+        safeUser.setCreateTime(user.getCreateTime());
+
+        // 记录用户登录态
+        request.getSession().setAttribute("user", safeUser);
+        return safeUser;
     }
 }

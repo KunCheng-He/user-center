@@ -1,9 +1,6 @@
 package com.alchemy.usercenter.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -70,6 +67,7 @@ public class User implements Serializable {
     /**
      * is deleted: 0-not deleted
      */
+    @TableLogic
     private Integer isDeleted;
 
     @TableField(exist = false)
