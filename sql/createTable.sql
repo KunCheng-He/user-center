@@ -5,7 +5,7 @@ create table user
     id bigint auto_increment not null primary key comment 'user id',
     name varchar(256) null comment 'user name',
     password varchar(256) null comment 'user password',
-    tel_phone varchar(128) null comment 'user telephone',
+    tel_phone varchar(128) not null unique comment 'user telephone',
     email varchar(128) null comment 'user email',
     avatar varchar(1024) null comment 'user avatar',
     gender tinyint null comment 'user gender: 0-male, 1-female',
