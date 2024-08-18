@@ -32,4 +32,37 @@ class UserServiceImplTest {
         boolean result = userService.save(user);
         assertTrue(result);
     }
+
+    @Test
+    void userRegister() {
+        // 测试空参
+        System.out.println(userService.userRegister(null, null, null));
+        String telPhone = "110111164929";
+        System.out.println(userService.userRegister(telPhone, null, null));
+        String userPassword = "123456";
+        System.out.println(userService.userRegister(telPhone, userPassword, null));
+        String checkPassword = "123456";
+
+        // 校验手机号错误
+        System.out.println(userService.userRegister(telPhone, userPassword, checkPassword));
+
+        // 密码长度不够
+        telPhone = "11011092759";
+        System.out.println(userService.userRegister(telPhone, userPassword, checkPassword));
+
+        // 校验密码一致性
+        userPassword = "123456abcd@";
+        checkPassword = "123456abcd";
+        System.out.println(userService.userRegister(telPhone, userPassword, checkPassword));
+
+        // 校验密码是否合法
+        userPassword = "123456abcd🌟";
+        checkPassword = "123456abcd🌟";
+        System.out.println(userService.userRegister(telPhone, userPassword, checkPassword));
+
+        // 注册用户(第一次运行成功，第二次因为用户已注册要运行失败)
+        userPassword = "123456abcd";
+        checkPassword = "123456abcd";
+        System.out.println(userService.userRegister(telPhone, userPassword, checkPassword));
+    }
 }

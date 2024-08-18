@@ -1,8 +1,12 @@
 package com.alchemy.usercenter.service.impl;
 
+import cn.hutool.core.lang.Validator;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import com.alchemy.usercenter.mapper.UserMapper;
 import com.alchemy.usercenter.model.User;
 import com.alchemy.usercenter.service.UserService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -14,4 +18,40 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    @Override
+    public Long userRegister(String telPhone, String userPassword, String checkPassword) {
+        // 校验用户输入
+        if (StrUtil.hasBlank(telPhone, userPassword, checkPassword))
+            // 判字段 空
+            return (long) -1;
+        else if (!Validator.isMobile(telPhone))
+            // 校验手机号
+            return (long) -2;
+        else if (userPassword.length() <8 || userPassword.length() > 16)
+            // 校验密码长度
+            return (long) -3;
+        else if (!userPassword.equals(checkPassword))
+            // 校验密码是否一致
+            return (long) -4;
+        else if (!userPassword.matches("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$"))
+            // 校验密码格式
+            return (long) -5;
+        else {
+            // 提前查询用户是否已经注册
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("tel_phone", telPhone);
+            if (this.count(queryWrapper) > 0)
+                // 用户已注册
+                return (long) -6;
+        }
+
+        // 普通校验通过，对密码进行 MD5 摘要加密（不可解密）
+        String password = DigestUtil.md5Hex(userPassword);
+
+        // 注册用户(注册失败返回 -6，可能是因为该用户以注册)
+        User user = new User();
+        user.setTelPhone(telPhone);
+        user.setPassword(password);
+        return this.save(user) ? user.getId() : -7;
+    }
 }
