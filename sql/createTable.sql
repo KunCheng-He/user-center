@@ -10,6 +10,7 @@ create table user
     avatar varchar(1024) null comment 'user avatar',
     gender tinyint null comment 'user gender: 0-male, 1-female',
     status int default 0 null comment 'user status: 0-normal',
+    user_role int default 0 null comment 'user role: 0-normal 1-admin',
     create_time datetime default current_timestamp not null comment 'create time',
     update_time datetime default current_timestamp not null on update current_timestamp comment 'update time',
     is_deleted tinyint default 0 not null comment 'is deleted: 0-not deleted'

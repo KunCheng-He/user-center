@@ -55,6 +55,11 @@ public class User implements Serializable {
     private Integer status;
 
     /**
+     * user role: 0-normal 1-admin
+     */
+    private Integer userRole;
+
+    /**
      * create time
      */
     private Date createTime;

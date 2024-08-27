@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.alchemy.usercenter.constant.UserConstant.USER_LOGIN_STATE;
+
 /**
 * @author KunCheng He
 * @description 针对表【user】的数据库操作Service实现
@@ -88,18 +90,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 脱敏
-        User safeUser = new User();
-        safeUser.setId(user.getId());
-        safeUser.setName(user.getName());
-        safeUser.setTelPhone(user.getTelPhone());
-        safeUser.setEmail(user.getEmail());
-        safeUser.setAvatar(user.getAvatar());
-        safeUser.setGender(user.getGender());
-        safeUser.setStatus(user.getStatus());
-        safeUser.setCreateTime(user.getCreateTime());
+        User safeUser = getSafeUser(user);
 
         // 记录用户登录态
-        request.getSession().setAttribute("user", safeUser);
+        request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
+        return safeUser;
+    }
+
+    @Override
+    public User getSafeUser(User originUser) {
+        // 脱敏
+        User safeUser = new User();
+        safeUser.setId(originUser.getId());
+        safeUser.setName(originUser.getName());
+        safeUser.setTelPhone(originUser.getTelPhone());
+        safeUser.setEmail(originUser.getEmail());
+        safeUser.setAvatar(originUser.getAvatar());
+        safeUser.setGender(originUser.getGender());
+        safeUser.setStatus(originUser.getStatus());
+        safeUser.setUserRole(originUser.getUserRole());
+        safeUser.setCreateTime(originUser.getCreateTime());
         return safeUser;
     }
 }
