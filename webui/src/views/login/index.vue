@@ -2,13 +2,7 @@
   <div class="login-container">
     <!-- 顶部工具栏 -->
     <div class="top-bar">
-      <el-switch
-        v-model="isDark"
-        inline-prompt
-        active-icon="Moon"
-        inactive-icon="Sunny"
-        @change="toggleTheme"
-      />
+      <el-switch v-model="isDark" inline-prompt active-icon="Moon" inactive-icon="Sunny" @change="toggleTheme" />
       <lang-select class="ml-2 cursor-pointer" />
     </div>
     <!-- 登录表单 -->
@@ -18,99 +12,34 @@
         <el-tag class="ml-2 absolute-rt">{{ defaultSettings.version }}</el-tag>
       </div>
 
-      <el-form
-        ref="loginFormRef"
-        :model="loginData"
-        :rules="loginRules"
-        class="login-form"
-      >
-        <!-- 用户名 -->
-        <el-form-item prop="username">
+      <el-form ref="loginFormRef" :model="loginData" :rules="loginRules" class="login-form">
+        <!-- 电话号码 -->
+        <el-form-item prop="telPhone">
           <div class="input-wrapper">
-            <i-ep-user class="mx-2" />
-            <el-input
-              ref="username"
-              v-model="loginData.username"
-              :placeholder="$t('login.username')"
-              name="username"
-              size="large"
-              class="h-[48px]"
-            />
+            <i-ep-phone class="mx-2" />
+            <el-input ref="telPhone" v-model="loginData.telPhone" :placeholder="$t('电话号码')" name="telPhone" size="large"
+              class="h-[48px]" />
           </div>
         </el-form-item>
 
         <!-- 密码 -->
-        <el-tooltip
-          :visible="isCapslock"
-          :content="$t('login.capsLock')"
-          placement="right"
-        >
-          <el-form-item prop="password">
+        <el-tooltip :visible="isCapslock" :content="$t('login.capsLock')" placement="right">
+          <el-form-item prop="userPassword">
             <div class="input-wrapper">
               <i-ep-lock class="mx-2" />
-              <el-input
-                v-model="loginData.password"
-                :placeholder="$t('login.password')"
-                type="password"
-                name="password"
-                @keyup="checkCapslock"
-                @keyup.enter="handleLoginSubmit"
-                size="large"
-                class="h-[48px] pr-2"
-                show-password
-              />
+              <el-input v-model="loginData.userPassword" :placeholder="$t('密码')" type="userPassword" name="userPassword"
+                @keyup="checkCapslock" @keyup.enter="handleLoginSubmit" size="large" class="h-[48px] pr-2"
+                show-password />
             </div>
           </el-form-item>
         </el-tooltip>
 
-        <!-- 验证码 -->
-        <el-form-item prop="captchaCode">
-          <div class="input-wrapper">
-            <svg-icon icon-class="captcha" class="mx-2" />
-            <el-input
-              v-model="loginData.captchaCode"
-              auto-complete="off"
-              size="large"
-              class="flex-1"
-              :placeholder="$t('login.captchaCode')"
-              @keyup.enter="handleLoginSubmit"
-            />
-
-            <el-image
-              @click="getCaptcha"
-              :src="captchaBase64"
-              class="captcha-image"
-            />
-          </div>
-        </el-form-item>
-
         <!-- 登录按钮 -->
-        <el-button
-          :loading="loading"
-          type="primary"
-          size="large"
-          class="w-full"
-          @click.prevent="handleLoginSubmit"
-        >
+        <el-button :loading="loading" type="primary" size="large" class="w-full" @click.prevent="handleLoginSubmit">
           {{ $t("login.login") }}
         </el-button>
-
-        <!-- 账号密码提示 -->
-        <div class="mt-10 text-sm">
-          <span>{{ $t("login.username") }}: admin</span>
-          <span class="ml-4">{{ $t("login.password") }}: 123456</span>
-        </div>
       </el-form>
     </el-card>
-
-    <!-- ICP备案 -->
-    <div class="icp-info" v-show="icpVisible">
-      <p>
-        Copyright © 2021 - 2024 youlai.tech All Rights Reserved. 有来技术
-        版权所有
-      </p>
-      <p>皖ICP备20006496号-3</p>
-    </div>
   </div>
 </template>
 
@@ -142,62 +71,41 @@ const { t } = useI18n();
 
 // 是否暗黑模式
 const isDark = ref(settingsStore.theme === ThemeEnum.DARK);
-// 是否显示 ICP 备案信息
-const icpVisible = ref(true);
 // 按钮 loading 状态
 const loading = ref(false);
 // 是否大写锁定
 const isCapslock = ref(false);
-// 验证码图片Base64字符串
-const captchaBase64 = ref();
 // 登录表单ref
 const loginFormRef = ref<FormInstance>();
 
 const loginData = ref<LoginData>({
-  username: "admin",
-  password: "123456",
-  captchaKey: "",
-  captchaCode: "",
+  telPhone: "",
+  userPassword: "",
 } as LoginData);
 
 const loginRules = computed(() => {
   return {
-    username: [
+    telPhone: [
       {
         required: true,
         trigger: "blur",
-        message: t("login.message.username.required"),
+        message: t("请输入电话号码"),
       },
     ],
-    password: [
+    userPassword: [
       {
         required: true,
         trigger: "blur",
-        message: t("login.message.password.required"),
+        message: t("请输入登录密码"),
       },
       {
-        min: 6,
-        message: t("login.message.password.min"),
+        min: 8,
+        message: t("密码长度不可小于8位"),
         trigger: "blur",
-      },
-    ],
-    captchaCode: [
-      {
-        required: true,
-        trigger: "blur",
-        message: t("login.message.captchaCode.required"),
       },
     ],
   };
 });
-
-/** 获取验证码 */
-function getCaptcha() {
-  AuthAPI.getCaptcha().then((data) => {
-    loginData.value.captchaKey = data.captchaKey;
-    captchaBase64.value = data.captchaBase64;
-  });
-}
 
 /** 登录表单提交 */
 function handleLoginSubmit() {
@@ -211,7 +119,8 @@ function handleLoginSubmit() {
           router.push({ path: path, query: queryParams });
         })
         .catch(() => {
-          getCaptcha();
+          // 登录失败
+          console.log("登录失败");
         })
         .finally(() => {
           loading.value = false;
@@ -246,15 +155,6 @@ const toggleTheme = () => {
   settingsStore.changeTheme(newTheme);
 };
 
-/** 根据屏幕宽度切换设备模式 */
-watchEffect(() => {
-  if (height.value < 600) {
-    icpVisible.value = false;
-  } else {
-    icpVisible.value = true;
-  }
-});
-
 /** 检查输入大小写 */
 function checkCapslock(event: KeyboardEvent) {
   // 防止浏览器密码自动填充时报错
@@ -262,10 +162,6 @@ function checkCapslock(event: KeyboardEvent) {
     isCapslock.value = event.getModifierState("CapsLock");
   }
 }
-
-onMounted(() => {
-  getCaptcha();
-});
 </script>
 
 <style lang="scss" scoped></style>
